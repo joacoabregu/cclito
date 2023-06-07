@@ -1,8 +1,21 @@
-export default function ButtonsModal() {
+import type { Tab } from '../types';
+
+export default function ButtonsModal({
+  tabState,
+}: {
+  tabState: [Tab, React.Dispatch<React.SetStateAction<Tab>>];
+}) {
+  const [, setTab] = tabState;
+
   return (
     <>
       {/* Put this part before </body> tag */}
-      <input type='checkbox' defaultChecked={true} id='my-modal' className='modal-toggle' />
+      <input
+        type='checkbox'
+        defaultChecked={true}
+        id='my-modal'
+        className='modal-toggle'
+      />
       <div className='modal '>
         <div className='modal-box max-w-xs'>
           <div className='modal-action justify-start mb-4'>
@@ -27,10 +40,18 @@ export default function ButtonsModal() {
           </div>
           <h2 className='text-3xl mb-6 text-center'>¿Qué queres saber?</h2>
           <div className='flex flex-col py-4 gap-y-4'>
-            <button className='btn w-full'>Valor ccl de una acción</button>
-            <button className='btn'>Valor de un cedear</button>
-            <button className='btn'>Stop Loss / Take Profit</button>
-            <button className='btn'>Todas las opciones</button>
+            <button className='btn' onClick={() => setTab('CCL')}>
+              Valor ccl de una acción
+            </button>
+            <button className='btn' onClick={() => setTab('Cedear')}>
+              Valor de un cedear
+            </button>
+            <button className='btn' onClick={() => setTab('SL/TP')}>
+              Stop Loss / Take Profit
+            </button>
+            <button className='btn' onClick={() => setTab('Free')}>
+              Todas las opciones
+            </button>
           </div>
         </div>
       </div>
