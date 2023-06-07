@@ -1,0 +1,1 @@
+export type Tab = 'CCL' | 'Cedear' | 'SL/TP' | 'Free';
