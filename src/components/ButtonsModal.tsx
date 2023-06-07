@@ -1,4 +1,5 @@
 import type { Tab } from '../types';
+import * as React from 'react';
 
 export default function ButtonsModal({
   tabState,
@@ -6,6 +7,11 @@ export default function ButtonsModal({
   tabState: [Tab, React.Dispatch<React.SetStateAction<Tab>>];
 }) {
   const [, setTab] = tabState;
+  const labelRef = React.useRef<HTMLLabelElement | null>(null);
+  const changeTab = (tab: Tab) => {
+    setTab(tab);
+    labelRef.current?.click();
+  };
 
   return (
     <>
@@ -20,7 +26,7 @@ export default function ButtonsModal({
         <div className='modal-box max-w-xs'>
           <div className='modal-action justify-start mb-4'>
             <button className='btn btn-sm btn-square btn-outline'>
-              <label htmlFor='my-modal'>
+              <label htmlFor='my-modal' ref={labelRef}>
                 <svg
                   xmlns='http://www.w3.org/2000/svg'
                   className='h-6 w-6'
@@ -40,16 +46,16 @@ export default function ButtonsModal({
           </div>
           <h2 className='text-3xl mb-6 text-center'>¿Qué queres saber?</h2>
           <div className='flex flex-col py-4 gap-y-4'>
-            <button className='btn' onClick={() => setTab('CCL')}>
+            <button className='btn' onClick={() => changeTab('CCL')}>
               Valor ccl de una acción
             </button>
-            <button className='btn' onClick={() => setTab('Cedear')}>
+            <button className='btn' onClick={() => changeTab('Cedear')}>
               Valor de un cedear
             </button>
-            <button className='btn' onClick={() => setTab('SL/TP')}>
+            <button className='btn' onClick={() => changeTab('SL/TP')}>
               Stop Loss / Take Profit
             </button>
-            <button className='btn' onClick={() => setTab('Free')}>
+            <button className='btn' onClick={() => changeTab('Free')}>
               Todas las opciones
             </button>
           </div>
