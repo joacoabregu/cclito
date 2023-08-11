@@ -1,4 +1,4 @@
-import type { Tab } from '../types';
+import type { Tab } from '@customTypes/index';
 import * as React from 'react';
 
 export default function ButtonsModal({

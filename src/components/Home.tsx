@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import ButtonsModal from '../components/ButtonsModal';
-import type { Tab } from '../types';
-import CCLValue from './CCLValue';
+import ButtonsModal from '@components/ButtonsModal';
+import type { Tab } from '@customTypes/index';
+import CCLValue from '@components/CCLValue';
 
 export default function Index() {
   const [tab, setTab] = useState<Tab>('Cedear');
