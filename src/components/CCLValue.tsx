@@ -1,0 +1,87 @@
+import classNames from 'classnames';
+import { memo, useRef, useState } from 'react';
+import { useDebounce } from '@uidotdev/usehooks';
+import useSWR from 'swr';
+import { fetcher } from '@utils/index';
+
+type AutcompleteProps = {
+  items: {}[];
+  value: string;
+  onChange: (val: string) => void;
+};
+
+//we are using dropdown, input and menu component from daisyui
+const Autocomplete = memo(function Autocomplete(props: AutcompleteProps) {
+  const { items, value, onChange } = props;
+  const ref = useRef<HTMLDivElement>(null);
+  const [open, setOpen] = useState(false);
+  return (
+    <div
+      // use classnames here to easily toggle dropdown open
+      className={classNames({
+        'dropdown w-full': true,
+        'dropdown-open': open,
+      })}
+      ref={ref}
+    >
+      <input
+        type='text'
+        className='input input-bordered w-full'
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder='Type something..'
+        tabIndex={0}
+      />
+      {/* add this part */}
+      <div className='dropdown-content bg-base-200 top-14 max-h-96 overflow-auto flex-col rounded-md'>
+        <ul
+          className='menu menu-compact '
+          // use ref to calculate the width of parent
+          style={{ width: ref.current?.clientWidth }}
+        >
+          {items.map((item, index) => {
+            return (
+              <li
+                key={index}
+                tabIndex={index + 1}
+                onClick={() => {
+                  onChange(item.name);
+                  setOpen(false);
+                }}
+                className='border-b border-b-base-content/10 w-full'
+              >
+                <button>
+                  {item.name} <span> ({item.description})</span>{' '}
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+        {/* add this part */}
+      </div>
+    </div>
+  );
+});
+export default function Value() {
+  const [searchTerm, setSearchTerm] = useState('');
+  const debouncedSearchTerm = useDebounce(searchTerm, 400);
+  //Debounce useSwr
+  //https://gist.github.com/csandman/cb1b9cae2334415b0b20e04b228c1016
+  const { data, error, isLoading } = useSWR(
+    () =>
+      debouncedSearchTerm ? `api/stock?name=${debouncedSearchTerm}` : null,
+    fetcher
+  );
+
+  return (
+    <div className='container mx-auto px-4 flex justify-center'>
+      <div className='py-10 max-w-md w-full'>
+        <Autocomplete
+          value={searchTerm}
+          onChange={setSearchTerm}
+          items={data?.stocks || []}
+        />
+      </div>
+    </div>
+  );
+}
