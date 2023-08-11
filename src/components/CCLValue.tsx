@@ -3,9 +3,10 @@ import { memo, useRef, useState } from 'react';
 import { useDebounce } from '@uidotdev/usehooks';
 import useSWR from 'swr';
 import { fetcher } from '@utils/index';
+import type { Stocks } from '@customTypes/index';
 
 type AutcompleteProps = {
-  items: {}[];
+  items: Stocks;
   value: string;
   onChange: (val: string) => void;
 };
@@ -32,7 +33,6 @@ const Autocomplete = memo(function Autocomplete(props: AutcompleteProps) {
         placeholder='Type something..'
         tabIndex={0}
       />
-      {/* add this part */}
       <div className='dropdown-content bg-base-200 top-14 max-h-96 overflow-auto flex-col rounded-md'>
         <ul
           className='menu menu-compact '
@@ -45,19 +45,18 @@ const Autocomplete = memo(function Autocomplete(props: AutcompleteProps) {
                 key={index}
                 tabIndex={index + 1}
                 onClick={() => {
-                  onChange(item.name);
+                  onChange(item.full_name);
                   setOpen(false);
                 }}
                 className='border-b border-b-base-content/10 w-full'
               >
                 <button>
-                  {item.name} <span> ({item.description})</span>{' '}
+                  {item.full_name} <span> ({item.description})</span>{' '}
                 </button>
               </li>
             );
           })}
         </ul>
-        {/* add this part */}
       </div>
     </div>
   );
@@ -67,7 +66,7 @@ export default function Value() {
   const debouncedSearchTerm = useDebounce(searchTerm, 400);
   //Debounce useSwr
   //https://gist.github.com/csandman/cb1b9cae2334415b0b20e04b228c1016
-  const { data, error, isLoading } = useSWR(
+  const { data, error, isLoading } = useSWR<{ stocks: Stocks }>(
     () =>
       debouncedSearchTerm ? `api/stock?name=${debouncedSearchTerm}` : null,
     fetcher
@@ -76,11 +75,14 @@ export default function Value() {
   return (
     <div className='container mx-auto px-4 flex justify-center'>
       <div className='py-10 max-w-md w-full'>
-        <Autocomplete
-          value={searchTerm}
-          onChange={setSearchTerm}
-          items={data?.stocks || []}
-        />
+        {error && <p>Se ha producido un error. Intente más tarde.</p>}
+        {!error && (
+          <Autocomplete
+            value={searchTerm}
+            onChange={setSearchTerm}
+            items={data?.stocks || []}
+          />
+        )}
       </div>
     </div>
   );
