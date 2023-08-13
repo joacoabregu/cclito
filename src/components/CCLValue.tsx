@@ -3,11 +3,11 @@ import { memo, useRef, useState } from 'react';
 import { useDebounce } from '@uidotdev/usehooks';
 import useSWR from 'swr';
 import { fetcher } from '@utils/index';
-import type { Stocks } from '@customTypes/index';
+import type { StockName, Stocks } from '@customTypes/index';
 import Spinner from './Spinner';
 
 type AutcompleteProps = {
-  setStockName: React.Dispatch<React.SetStateAction<string>>;
+  setStockName: React.Dispatch<React.SetStateAction<StockName | undefined>>;
 };
 
 //we are using dropdown, input and menu component from daisyui
@@ -61,7 +61,10 @@ const Autocomplete = memo(function Autocomplete(props: AutcompleteProps) {
                         key={index}
                         tabIndex={index + 1}
                         onClick={() => {
-                          setStockName(item.full_name);
+                          setStockName({
+                            full_name: item.full_name,
+                            description: item.description,
+                          });
                           setOpen(false);
                         }}
                         className='border-b border-b-base-content/10 w-full'
@@ -92,13 +95,19 @@ const Autocomplete = memo(function Autocomplete(props: AutcompleteProps) {
   );
 });
 export default function Value() {
-  const [stockName, setStockName] = useState('');
+  const [stockName, setStockName] = useState<StockName | undefined>();
 
   return (
-    <div className='container mx-auto px-4 flex justify-center'>
+    <div className='container mx-auto px-4 flex flex-col justify-center'>
       <div className='py-10 max-w-md w-full'>
         <Autocomplete setStockName={setStockName} />
       </div>
+      {stockName && (
+        <div className='py-10 max-w-md w-full'>
+          <p className='text-3xl'>{stockName.full_name}</p>
+          <p className='text-base'>{stockName.description}</p>
+        </div>
+      )}
     </div>
   );
 }
