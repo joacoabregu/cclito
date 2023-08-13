@@ -2,8 +2,8 @@ import classNames from 'classnames';
 import { memo, useRef, useState } from 'react';
 import { useDebounce } from '@uidotdev/usehooks';
 import useSWR from 'swr';
-import { fetcher } from '@utils/index';
-import type { StockName, Stocks } from '@customTypes/index';
+import { fetcher, formatTimestampToDDMMYYY } from '@utils/index';
+import type { StockName, StockPrice, Stocks } from '@customTypes/index';
 import Spinner from './Spinner';
 
 type AutcompleteProps = {
@@ -97,8 +97,16 @@ const Autocomplete = memo(function Autocomplete(props: AutcompleteProps) {
 export default function Value() {
   const [stockName, setStockName] = useState<StockName | undefined>();
 
+  const { data, error, isLoading } = useSWR<{
+    stock: StockPrice;
+    cedear: StockPrice;
+  }>(
+    () => (stockName ? `api/stock/price?name=${stockName.full_name}` : null),
+    fetcher
+  );
+ 
   return (
-    <div className='container mx-auto px-4 flex flex-col justify-center'>
+    <div className='container px-4 flex flex-col items-center justify-center'>
       <div className='py-10 max-w-md w-full'>
         <Autocomplete setStockName={setStockName} />
       </div>
@@ -106,6 +114,22 @@ export default function Value() {
         <div className='py-10 max-w-md w-full'>
           <p className='text-3xl'>{stockName.full_name}</p>
           <p className='text-base'>{stockName.description}</p>
+        </div>
+      )}
+      {data && (
+        <div>
+          <p className='text-base'>
+            Precio: usd${' '}
+            {parseFloat(data.stock.c[data.stock.c.length - 1].toFixed(2))}
+          </p>
+          <p className='text-base'>
+            Precio CEDEAR: $
+            {parseFloat(data.cedear.c[data.cedear.c.length - 1].toFixed(2))}
+          </p>
+          <p>
+            Valor del:{' '}
+            {formatTimestampToDDMMYYY(data.stock.t[data.stock.t.length - 1])}{' '}
+          </p>
         </div>
       )}
     </div>
