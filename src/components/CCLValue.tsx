@@ -3,7 +3,7 @@ import { memo, useRef, useState } from 'react';
 import { useDebounce } from '@uidotdev/usehooks';
 import useSWR from 'swr';
 import { fetcher, formatTimestampToDDMMYYY } from '@utils/index';
-import type { StockName, StockPrice, Stocks } from '@customTypes/index';
+import type { Ratio, StockName, StockPrice, Stocks } from '@customTypes/index';
 import Spinner from './Spinner';
 
 type AutcompleteProps = {
@@ -100,13 +100,22 @@ export default function Value() {
   const { data, error, isLoading } = useSWR<{
     stock: StockPrice;
     cedear: StockPrice;
+    ratio: Ratio;
   }>(
     () => (stockName ? `api/stock/price?name=${stockName.full_name}` : null),
     fetcher
   );
- 
+
+  const ratio = Number(data?.ratio.split(':')[0]);
+  const stockPrice = parseFloat(
+    data?.stock.c[data.stock.c.length - 1].toFixed(2)
+  );
+  const cedearPrice = parseFloat(
+    data?.cedear.c[data.cedear.c.length - 1].toFixed(2)
+  );
+  const CCL = ((ratio * cedearPrice) / stockPrice).toFixed(2);
   return (
-    <div className='container px-4 flex flex-col items-center justify-center'>
+    <div className='container mx-auto px-4 flex flex-col items-center justify-center'>
       <div className='py-10 max-w-md w-full'>
         <Autocomplete setStockName={setStockName} />
       </div>
@@ -116,19 +125,20 @@ export default function Value() {
           <p className='text-base'>{stockName.description}</p>
         </div>
       )}
+      {error && (
+        <p className='text-base'>
+          Se ha producido un error al buscar la información del CEDEAR.
+        </p>
+      )}
       {data && (
         <div>
-          <p className='text-base'>
-            Precio: usd${' '}
-            {parseFloat(data.stock.c[data.stock.c.length - 1].toFixed(2))}
-          </p>
-          <p className='text-base'>
-            Precio CEDEAR: $
-            {parseFloat(data.cedear.c[data.cedear.c.length - 1].toFixed(2))}
-          </p>
+          <p className='text-2xl'>CCL: ${CCL} </p>
+          <p className='text-1xl'>Ratio: {ratio} </p>
+          <p className='text-base'>Precio: usd$ {stockPrice}</p>
+          <p className='text-base'>Precio CEDEAR: ${cedearPrice}</p>
           <p>
-            Valor del:{' '}
-            {formatTimestampToDDMMYYY(data.stock.t[data.stock.t.length - 1])}{' '}
+            Valor de cierre del:{' '}
+            {formatTimestampToDDMMYYY(data.stock.t[data.stock.t.length - 1])}
           </p>
         </div>
       )}
