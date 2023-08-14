@@ -94,9 +94,8 @@ const Autocomplete = memo(function Autocomplete(props: AutcompleteProps) {
     </>
   );
 });
-export default function Value() {
-  const [stockName, setStockName] = useState<StockName | undefined>();
 
+function StockInfo({ stockName }: { stockName: StockName | undefined }) {
   const { data, error, isLoading } = useSWR<{
     stock: StockPrice;
     cedear: StockPrice;
@@ -115,10 +114,7 @@ export default function Value() {
   );
   const CCL = ((ratio * cedearPrice) / stockPrice).toFixed(2);
   return (
-    <div className='container mx-auto px-4 flex flex-col items-center justify-center'>
-      <div className='py-10 max-w-md w-full'>
-        <Autocomplete setStockName={setStockName} />
-      </div>
+    <>
       {stockName && (
         <div className='py-10 max-w-md w-full'>
           <p className='text-3xl'>{stockName.full_name}</p>
@@ -130,6 +126,7 @@ export default function Value() {
           Se ha producido un error al buscar la información del CEDEAR.
         </p>
       )}
+      {isLoading && <Spinner />}
       {data && (
         <div>
           <p className='text-2xl'>CCL: ${CCL} </p>
@@ -142,6 +139,18 @@ export default function Value() {
           </p>
         </div>
       )}
+    </>
+  );
+}
+export default function Value() {
+  const [stockName, setStockName] = useState<StockName | undefined>();
+
+  return (
+    <div className='container mx-auto px-4 flex flex-col items-center justify-center'>
+      <div className='py-10 max-w-md w-full'>
+        <Autocomplete setStockName={setStockName} />
+      </div>
+      <StockInfo stockName={stockName} />
     </div>
   );
 }
