@@ -32,4 +32,5 @@ export const StockRatioSchema = z.object({
 });
 export const StocksRatioSchema = StockRatioSchema.array();
 export type StockRatio = z.infer<typeof StockRatioSchema>;
+export type Ratio = StockRatio['ratio']
 export type StocksRatio = z.infer<typeof StocksRatioSchema>;
