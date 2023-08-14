@@ -1,8 +1,31 @@
-import { StockPriceSchema } from '@customTypes/index';
+import {
+  StockPriceSchema,
+  StockRatio,
+  StocksRatio,
+  StocksRatioSchema,
+} from '@customTypes/index';
 import type { APIRoute } from 'astro';
 import pino from 'pino';
 import { z } from 'zod';
+import Papa from 'papaparse';
 const logger = pino();
+
+export async function getRatios() {
+  const ratioSheet =
+    'https://docs.google.com/spreadsheets/d/e/2PACX-1vS-RtvaCpilenyOw3UY8YuA0cQMj1nS5B8AvHwiy7gKGfLDCe2UtAfB3B52mkWOytr_RA4DWEdGYAED/pub?gid=779469096&single=true&output=csv';
+  const ratioData = await fetch(ratioSheet);
+  const ratioText = await ratioData.text();
+
+  const ratiosParsed = await new Promise<StocksRatio>((resolve, reject) => {
+    Papa.parse<StockRatio>(ratioText, {
+      header: true,
+      complete: (result) => resolve(result.data),
+      error: reject,
+    });
+  });
+
+  return ratiosParsed;
+}
 
 export const get: APIRoute = async ({ request }) => {
   const url = new URL(request.url);
@@ -22,25 +45,30 @@ export const get: APIRoute = async ({ request }) => {
     logger.info(stock);
     //TODO update timestamp based on day
     const fromTimeStamp = '&from=1691539200';
-    let api_url =
+    const api_url =
       `https://analisistecnico.com.ar/services/datafeed/history?symbol=${stock}&resolution=D` +
       fromTimeStamp;
-    let cedear_url =
+    const cedear_url =
       `https://analisistecnico.com.ar/services/datafeed/history?symbol=${stock}%3ACEDEAR&resolution=D` +
       fromTimeStamp;
 
-    const [responseStockData, responseStockCedearData] = await Promise.all([
-      fetch(api_url).then((resp) => resp.json()),
-      fetch(cedear_url).then((resp) => resp.json()),
-    ]);
+    const [responseStockData, responseStockCedearData, responseRatios] =
+      await Promise.all([
+        fetch(api_url).then((resp) => resp.json()),
+        fetch(cedear_url).then((resp) => resp.json()),
+        getRatios(),
+      ]);
 
     const stockData = StockPriceSchema.parse(responseStockData);
     const stockCedearData = StockPriceSchema.parse(responseStockCedearData);
+    const ratios = StocksRatioSchema.parse(responseRatios);
+    const stockRatio = ratios.find((ratio) => ratio.ticker === stock);
 
     return new Response(
       JSON.stringify({
         stock: stockData,
         cedear: stockCedearData,
+        ratio: stockRatio?.ratio,
       }),
       { status: 200 }
     );
