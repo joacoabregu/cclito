@@ -95,7 +95,47 @@ const Autocomplete = memo(function Autocomplete(props: AutcompleteProps) {
   );
 });
 
-function StockInfo({ stockName }: { stockName: StockName | undefined }) {
+interface StockInfoDetailsProps {
+  CCL: string;
+  ratio: number;
+  stockPrice: number;
+  cedearPrice: number;
+  date: string;
+}
+
+function CedearInfoDetails({ details }: { details: StockInfoDetailsProps }) {
+  return (
+    <div>
+      <p className='text-1xl'>Precio CEDEAR: ${details.cedearPrice}</p>
+      <p className='text-base'>Precio: usd$ {details.stockPrice}</p>
+      <p className='text-base'>CCL: ${details.CCL} </p>
+      <p className='text-base'>Ratio: {details.ratio} </p>
+      <p>Valor de cierre del: {details.date}</p>
+    </div>
+  );
+}
+
+function CCLInfoDetails({ details }: { details: StockInfoDetailsProps }) {
+  return (
+    <div>
+      <p className='text-2xl'>CCL: ${details.CCL} </p>
+      <p className='text-1xl'>Ratio: {details.ratio} </p>
+      <p className='text-base'>Precio: usd$ {details.stockPrice}</p>
+      <p className='text-base'>Precio CEDEAR: ${details.cedearPrice}</p>
+      <p>Valor de cierre del: {details.date}</p>
+    </div>
+  );
+}
+
+function StockInfo({
+  stockName,
+  detailsComponent,
+}: {
+  stockName: StockName | undefined;
+  detailsComponent: (details: StockInfoDetailsProps) => JSX.Element;
+}) {
+  //Debounce useSwr
+  //https://gist.github.com/csandman/cb1b9cae2334415b0b20e04b228c1016
   const { data, error, isLoading } = useSWR<{
     stock: StockPrice;
     cedear: StockPrice;
@@ -113,6 +153,17 @@ function StockInfo({ stockName }: { stockName: StockName | undefined }) {
     data?.cedear.c[data.cedear.c.length - 1].toFixed(2)
   );
   const CCL = ((ratio * cedearPrice) / stockPrice).toFixed(2);
+  const date = formatTimestampToDDMMYYY(
+    data?.stock.t[data?.stock.t.length - 1]!
+  );
+  const details = {
+    CCL,
+    ratio,
+    stockPrice,
+    cedearPrice,
+    date,
+  };
+
   return (
     <>
       {stockName && (
@@ -127,22 +178,15 @@ function StockInfo({ stockName }: { stockName: StockName | undefined }) {
         </p>
       )}
       {isLoading && <Spinner />}
-      {data && (
-        <div>
-          <p className='text-2xl'>CCL: ${CCL} </p>
-          <p className='text-1xl'>Ratio: {ratio} </p>
-          <p className='text-base'>Precio: usd$ {stockPrice}</p>
-          <p className='text-base'>Precio CEDEAR: ${cedearPrice}</p>
-          <p>
-            Valor de cierre del:{' '}
-            {formatTimestampToDDMMYYY(data.stock.t[data.stock.t.length - 1])}
-          </p>
-        </div>
-      )}
+      {data && detailsComponent(details)}
     </>
   );
 }
-export default function Value() {
+export function Value({
+  detailsComponent,
+}: {
+  detailsComponent: (details: StockInfoDetailsProps) => JSX.Element;
+}) {
   const [stockName, setStockName] = useState<StockName | undefined>();
 
   return (
@@ -150,7 +194,27 @@ export default function Value() {
       <div className='py-10 max-w-md w-full'>
         <Autocomplete setStockName={setStockName} />
       </div>
-      <StockInfo stockName={stockName} />
+      <StockInfo stockName={stockName} detailsComponent={detailsComponent} />
     </div>
+  );
+}
+
+export function CCLValue() {
+  return (
+    <Value
+      detailsComponent={(details: StockInfoDetailsProps) => (
+        <CCLInfoDetails details={details} />
+      )}
+    />
+  );
+}
+
+export function CedearValue() {
+  return (
+    <Value
+      detailsComponent={(details: StockInfoDetailsProps) => (
+        <CedearInfoDetails details={details} />
+      )}
+    />
   );
 }
