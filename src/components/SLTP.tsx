@@ -1,0 +1,72 @@
+import Autocomplete from '@components/common/AutoComplete';
+import {
+    CCLInfoDetails,
+    CedearError,
+    StockName
+} from '@components/common/StockInfo';
+import type {
+    StockName as IStockName,
+    Ratio,
+    StockPrice,
+} from '@customTypes/index';
+import { fetcher, formatTimestampToDDMMYYY } from '@utils/index';
+import { useState } from 'react';
+import useSWR from 'swr';
+
+export default function SLTP() {
+  const [stockName, setStockName] = useState<IStockName | undefined>();
+  const { data, error, isLoading } = useSWR<{
+    stock: StockPrice;
+    cedear: StockPrice;
+    ratio: Ratio;
+  }>(
+    () => (stockName ? `api/stock/price?name=${stockName.full_name}` : null),
+    fetcher
+  );
+  const ratio = Number(data?.ratio.split(':')[0]);
+  const stockPrice = parseFloat(
+    data?.stock.c[data.stock.c.length - 1].toFixed(2)
+  );
+  const cedearPrice = parseFloat(
+    data?.cedear.c[data.cedear.c.length - 1].toFixed(2)
+  );
+  const CCL = ((ratio * cedearPrice) / stockPrice).toFixed(2);
+  const date = formatTimestampToDDMMYYY(
+    data?.stock.t[data?.stock.t.length - 1]!
+  );
+  return (
+    <div className='container max-w-3xl mx-auto px-4'>
+      <div className='grid grid-cols-2 py-10 gap-6 items-center'>
+        <Autocomplete setStockName={setStockName} />
+        <div>{data && `CCL: $${CCL}`}</div>
+        <input
+          type='text'
+          placeholder='Ingresar Take Profit'
+          className='input input-bordered w-full'
+        />
+        <div></div>
+        <input
+          type='text'
+          placeholder='Ingresar Stop Loss'
+          className='input input-bordered w-full'
+        />
+        <div></div>
+      </div>
+      <div className='flex flex-col'>
+        {stockName && <StockName stockName={stockName} />}
+        {error && <CedearError />}
+        {data && (
+          <CCLInfoDetails
+            details={{
+              CCL,
+              ratio,
+              stockPrice,
+              cedearPrice,
+              date,
+            }}
+          />
+        )}
+      </div>
+    </div>
+  );
+}

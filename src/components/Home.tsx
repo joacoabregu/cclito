@@ -1,7 +1,8 @@
-import { useState } from 'react';
 import ButtonsModal from '@components/ButtonsModal';
+import { CCLValue, CedearValue } from '@components/CCLValue';
+import SLTP from '@components/SLTP';
 import type { Tab } from '@customTypes/index';
-import {CCLValue, CedearValue} from '@components/CCLValue';
+import { useState } from 'react';
 
 export default function Index() {
   const [tab, setTab] = useState<Tab>('CCL');
@@ -14,6 +15,7 @@ export default function Index() {
         </label>
         {tab === 'CCL' && <CCLValue />}
         {tab === 'Cedear' && <CedearValue />}
+        {tab === 'SL/TP' && <SLTP />}
       </main>
       <ButtonsModal tabState={[tab, setTab]} />
     </>
