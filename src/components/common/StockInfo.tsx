@@ -1,6 +1,6 @@
 import Spinner from '@components/Spinner';
 import type { Ratio, StockName, StockPrice } from '@customTypes/index';
-import { fetcher, formatTimestampToDDMMYYY } from '@utils/index';
+import { fetcher, getStockDetails } from '@utils/index';
 import useSWR from 'swr';
 
 export interface StockInfoDetailsProps {
@@ -29,24 +29,7 @@ export function StockInfo({
     fetcher
   );
 
-  const ratio = Number(data?.ratio.split(':')[0]);
-  const stockPrice = parseFloat(
-    data?.stock.c[data.stock.c.length - 1].toFixed(2)
-  );
-  const cedearPrice = parseFloat(
-    data?.cedear.c[data.cedear.c.length - 1].toFixed(2)
-  );
-  const CCL = ((ratio * cedearPrice) / stockPrice).toFixed(2);
-  const date = formatTimestampToDDMMYYY(
-    data?.stock.t[data?.stock.t.length - 1]!
-  );
-  const details = {
-    CCL,
-    ratio,
-    stockPrice,
-    cedearPrice,
-    date,
-  };
+  const details = getStockDetails(data);
 
   return (
     <>
