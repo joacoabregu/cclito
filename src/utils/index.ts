@@ -31,3 +31,7 @@ export function getStockDetails(data: {
   );
   return { ratio, stockPrice, cedearPrice, CCL, date };
 }
+
+export const mediaQuery = {
+  sm: 'only screen and (min-width : 640px)'
+}
