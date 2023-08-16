@@ -1,14 +1,15 @@
 import Autocomplete from '@components/common/AutoComplete';
 import {
-    CCLInfoDetails,
-    CedearError,
-    StockName
+  CCLInfoDetails,
+  CedearError,
+  StockName,
 } from '@components/common/StockInfo';
 import type {
-    StockName as IStockName,
-    Ratio,
-    StockPrice,
+  StockName as IStockName,
+  Ratio,
+  StockPrice,
 } from '@customTypes/index';
+import { useDebounce } from '@uidotdev/usehooks';
 import { fetcher, formatTimestampToDDMMYYY } from '@utils/index';
 import { useState } from 'react';
 import useSWR from 'swr';
@@ -35,24 +36,24 @@ export default function SLTP() {
     data?.stock.t[data?.stock.t.length - 1]!
   );
   return (
-    <div className='container max-w-3xl mx-auto px-4'>
+    <div className='container mx-auto max-w-3xl mx-auto px-4'>
       <div className='grid grid-cols-2 py-10 gap-6 items-center'>
         <Autocomplete setStockName={setStockName} />
         <div>{data && `CCL: $${CCL}`}</div>
-        <input
-          type='text'
+        <InputSLTP
+          CCL={CCL}
+          ratio={ratio}
+          isData={Boolean(data)}
           placeholder='Ingresar Take Profit'
-          className='input input-bordered w-full'
         />
-        <div></div>
-        <input
-          type='text'
+        <InputSLTP
+          CCL={CCL}
+          ratio={ratio}
+          isData={Boolean(data)}
           placeholder='Ingresar Stop Loss'
-          className='input input-bordered w-full'
         />
-        <div></div>
       </div>
-      <div className='flex flex-col'>
+      <div className='flex flex-col items-center'>
         {stockName && <StockName stockName={stockName} />}
         {error && <CedearError />}
         {data && (
@@ -68,5 +69,42 @@ export default function SLTP() {
         )}
       </div>
     </div>
+  );
+}
+
+function InputSLTP({
+  CCL,
+  ratio,
+  isData,
+  placeholder,
+}: {
+  CCL: string;
+  ratio: number;
+  isData: boolean;
+  placeholder: string;
+}) {
+  const [TPPrice, setTPPrice] = useState<string>('');
+  const debouncedTPPrice = useDebounce(TPPrice, 400);
+  return (
+    <>
+      <input
+        type='text'
+        placeholder={placeholder}
+        className='input input-bordered w-full'
+        disabled={!isData}
+        value={TPPrice}
+        onChange={(e) => {
+          const value = e.target.value;
+          //check that value is a valid number
+          if (isNaN(parseFloat(value))) return;
+          setTPPrice(e.target.value);
+        }}
+      />
+      <div>
+        {isData &&
+          debouncedTPPrice &&
+          `$${((Number(CCL) * Number(debouncedTPPrice)) / ratio).toFixed(2)}`}
+      </div>
+    </>
   );
 }
