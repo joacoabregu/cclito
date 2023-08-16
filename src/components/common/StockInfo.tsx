@@ -43,7 +43,7 @@ export function StockInfo({
 
 export function StockName({ stockName }: { stockName: StockName }) {
   return (
-    <div className='py-10 max-w-md w-full'>
+    <div className='py-5 sm:py-10 max-w-md w-full'>
       <p className='text-3xl'>{stockName.full_name}</p>
       <p className='text-base'>{stockName.description}</p>
     </div>
