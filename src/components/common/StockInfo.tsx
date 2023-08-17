@@ -73,3 +73,15 @@ export function CCLInfoDetails({
     </div>
   );
 }
+
+export function CedearInfoDetails({ details }: { details: StockInfoDetailsProps }) {
+  return (
+    <div>
+      <p className='text-1xl'>Precio CEDEAR: ${details.cedearPrice}</p>
+      <p className='text-base'>Precio: usd$ {details.stockPrice}</p>
+      <p className='text-base'>CCL: ${details.CCL} </p>
+      <p className='text-base'>Ratio: {details.ratio} </p>
+      <p>Valor de cierre del: {details.date}</p>
+    </div>
+  );
+}

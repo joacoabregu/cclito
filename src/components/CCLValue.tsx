@@ -1,23 +1,13 @@
 import Autocomplete from '@components/common/AutoComplete';
 import {
   CCLInfoDetails,
+  CedearInfoDetails,
   StockInfo,
   StockInfoDetailsProps,
 } from '@components/common/StockInfo';
 import type { StockName } from '@customTypes/index';
 import { useState } from 'react';
 
-function CedearInfoDetails({ details }: { details: StockInfoDetailsProps }) {
-  return (
-    <div>
-      <p className='text-1xl'>Precio CEDEAR: ${details.cedearPrice}</p>
-      <p className='text-base'>Precio: usd$ {details.stockPrice}</p>
-      <p className='text-base'>CCL: ${details.CCL} </p>
-      <p className='text-base'>Ratio: {details.ratio} </p>
-      <p>Valor de cierre del: {details.date}</p>
-    </div>
-  );
-}
 
 export function Value({
   detailsComponent,
