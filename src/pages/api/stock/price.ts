@@ -62,8 +62,9 @@ export const get: APIRoute = async ({ request }) => {
     const stockData = StockPriceSchema.parse(responseStockData);
     const stockCedearData = StockPriceSchema.parse(responseStockCedearData);
     const ratios = StocksRatioSchema.parse(responseRatios);
-    const stockRatio = ratios.find((ratio) => ratio.ticker === stock);
-
+    const stockRatio = ratios.find(
+      (ratio) => ratio.ticker === stock.toUpperCase()
+    );
     return new Response(
       JSON.stringify({
         stock: stockData,
