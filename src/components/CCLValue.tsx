@@ -8,11 +8,13 @@ import {
 import type { StockName } from '@customTypes/index';
 import { useState } from 'react';
 
-
 export function Value({
   detailsComponent,
 }: {
-  detailsComponent: (details: StockInfoDetailsProps) => JSX.Element;
+  detailsComponent: (
+    details: StockInfoDetailsProps,
+    stockName: StockName | undefined
+  ) => JSX.Element;
 }) {
   const [stockName, setStockName] = useState<StockName | undefined>();
 
@@ -29,9 +31,10 @@ export function Value({
 export function CCLValue() {
   return (
     <Value
-      detailsComponent={(details: StockInfoDetailsProps) => (
-        <CCLInfoDetails details={details} />
-      )}
+      detailsComponent={(
+        details: StockInfoDetailsProps,
+        stockName: StockName | undefined
+      ) => <CCLInfoDetails details={details} stockName={stockName} />}
     />
   );
 }
@@ -39,9 +42,10 @@ export function CCLValue() {
 export function CedearValue() {
   return (
     <Value
-      detailsComponent={(details: StockInfoDetailsProps) => (
-        <CedearInfoDetails details={details} />
-      )}
+      detailsComponent={(
+        details: StockInfoDetailsProps,
+        stockName: StockName | undefined
+      ) => <CedearInfoDetails details={details} stockName={stockName} />}
     />
   );
 }
