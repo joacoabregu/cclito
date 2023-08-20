@@ -3,6 +3,9 @@ import { useState } from 'react';
 const useLocalStorage = <T,>(key: string, initialValue: T) => {
   const [state, setState] = useState<T>(() => {
     // Initialize the state
+    if (typeof window === 'undefined') {
+      return;
+    }
     try {
       const value = window.localStorage.getItem(key);
       // Check if the local storage already has any values,
