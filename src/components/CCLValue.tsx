@@ -31,10 +31,9 @@ export function Value({
 export function CCLValue() {
   return (
     <Value
-      detailsComponent={(
-        details: StockInfoDetailsProps,
-        stockName: StockName | undefined
-      ) => <CCLInfoDetails details={details} stockName={stockName} />}
+      detailsComponent={(details, stockName) => (
+        <CCLInfoDetails details={details} stockName={stockName} />
+      )}
     />
   );
 }
@@ -42,10 +41,9 @@ export function CCLValue() {
 export function CedearValue() {
   return (
     <Value
-      detailsComponent={(
-        details: StockInfoDetailsProps,
-        stockName: StockName | undefined
-      ) => <CedearInfoDetails details={details} stockName={stockName} />}
+      detailsComponent={(details, stockName) => (
+        <CedearInfoDetails details={details} stockName={stockName} />
+      )}
     />
   );
 }
