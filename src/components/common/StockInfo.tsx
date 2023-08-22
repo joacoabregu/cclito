@@ -71,7 +71,7 @@ export function CCLInfoDetails({
 }) {
   const [favs, setFavs] = useLocalStorage<StockName[]>('favorites', []);
   const isFav = favs?.some((fav) => fav.full_name === stockName?.full_name);
-  const saveStock = () => {
+  const saveStock = (isFav:boolean) => {
     if (isFav) {
       setFavs(favs.filter((fav) => fav.full_name !== stockName?.full_name));
     } else {
@@ -88,8 +88,8 @@ export function CCLInfoDetails({
         <p>Valor de cierre del: {details.date}</p>
       </div>
       <div>
-        {!isFav && <HeartEmpty onClick={saveStock} />}
-        {isFav && <HeartFull onClick={saveStock} />}
+        {!isFav && <HeartEmpty onClick={() => saveStock(isFav)} />}
+        {isFav && <HeartFull onClick={() => saveStock(isFav)} />}
       </div>
     </>
   );
@@ -103,15 +103,14 @@ export function CedearInfoDetails({
   stockName: StockName | undefined;
 }) {
   const [favs, setFavs] = useLocalStorage<StockName[]>('favorites', []);
-  const saveStock = () => {
-    const isFav = favs?.some((fav) => fav.full_name === stockName?.full_name);
+  const isFav = favs?.some((fav) => fav.full_name === stockName?.full_name);
+  const saveStock = (isFav: boolean) => {
     if (isFav) {
       setFavs(favs.filter((fav) => fav.full_name === stockName?.full_name));
     } else {
       setFavs([...favs, ...(stockName ? [stockName] : [])]);
     }
   };
-  const isFav = favs?.some((fav) => fav.full_name === stockName?.full_name);
   return (
     <>
       <div>
@@ -122,8 +121,8 @@ export function CedearInfoDetails({
         <p>Valor de cierre del: {details.date}</p>
       </div>
       <div>
-        {!isFav && <HeartEmpty onClick={saveStock} />}
-        {isFav && <HeartFull onClick={saveStock} />}
+        {!isFav && <HeartEmpty onClick={() => saveStock(isFav)} />}
+        {isFav && <HeartFull onClick={() => saveStock(isFav)} />}
       </div>
     </>
   );
