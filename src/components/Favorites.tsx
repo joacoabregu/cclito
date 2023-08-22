@@ -1,3 +1,4 @@
+import Spinner from '@components/Spinner';
 import type { StockName, StocksSheets } from '@customTypes/index';
 import { useMediaQuery } from '@uidotdev/usehooks';
 import { fetcher, getCCL, mediaQuery } from '@utils/index';
@@ -14,6 +15,11 @@ export default function Favorites() {
   return (
     <div className='container mx-auto max-w-4xl p-4'>
       {error && <Alert />}
+      {isLoading && (
+        <div className='h-screen grid place-items-center'>
+          <Spinner />
+        </div>
+      )}
       {isDesktop && (
         <FavoritesTable data={data} favs={favs} setFavs={setFavs} />
       )}
