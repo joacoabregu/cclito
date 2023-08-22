@@ -12,12 +12,11 @@ export default function Favorites() {
     stocks: StocksSheets;
   }>(() => (favsQuery ? `api/stocks?name=${favsQuery}` : null), fetcher);
   return (
-    <div className='container mx-auto max-w-4xl mx-auto px-4'>
+    <div className='container mx-auto max-w-4xl px-4'>
       {error && <Alert />}
       {isDesktop && (
         <div className='overflow-x-auto'>
           <table className='table table-zebra w-full'>
-            {/* head */}
             <thead>
               <tr>
                 <th></th>
@@ -62,6 +61,9 @@ export default function Favorites() {
                 ))}
             </tbody>
           </table>
+          {favs && favs.length === 0 && (
+            <p className='mt-8 text-center'>Agregue un CEDEAR a su listado de favoritos.</p>
+          )}
         </div>
       )}
       {!isDesktop && (
