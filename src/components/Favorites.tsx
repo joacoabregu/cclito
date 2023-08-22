@@ -15,56 +15,7 @@ export default function Favorites() {
     <div className='container mx-auto max-w-4xl px-4'>
       {error && <Alert />}
       {isDesktop && (
-        <div className='overflow-x-auto'>
-          <table className='table table-zebra w-full'>
-            <thead>
-              <tr>
-                <th></th>
-                <th>Nombre</th>
-                <th>Precio</th>
-                <th>Cedear</th>
-                <th>CCL</th>
-                <th>Ratio</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {!data &&
-                favs.map((fav, idx) => (
-                  <FavoritesTableRow
-                    key={fav.full_name}
-                    id={idx}
-                    name={fav.description}
-                    ticker={fav.full_name}
-                    onClick={() =>
-                      setFavs(
-                        favs.filter(
-                          (favorite) => favorite.full_name !== fav.full_name
-                        )
-                      )
-                    }
-                  />
-                ))}
-              {data &&
-                data.stocks.map((stock, index) => (
-                  <FavoritesTableRow
-                    key={stock.id}
-                    name={stock.cedear}
-                    {...stock}
-                    id={index}
-                    onClick={() =>
-                      setFavs(
-                        favs.filter((fav) => fav.full_name !== stock.ticker)
-                      )
-                    }
-                  />
-                ))}
-            </tbody>
-          </table>
-          {favs && favs.length === 0 && (
-            <p className='mt-8 text-center'>Agregue un CEDEAR a su listado de favoritos.</p>
-          )}
-        </div>
+        <FavoritesTable data={data} favs={favs} setFavs={setFavs} />
       )}
       {!isDesktop && (
         <div className='flex flex-col items-center gap-4'>
@@ -93,6 +44,73 @@ export default function Favorites() {
             );
           })}
         </div>
+      )}
+    </div>
+  );
+}
+
+function FavoritesTable({
+  favs,
+  setFavs,
+  data,
+}: {
+  favs: StockName[];
+  data:
+    | {
+        stocks: StocksSheets;
+      }
+    | undefined;
+  setFavs: (value: StockName[]) => void;
+}) {
+  return (
+    <div className='overflow-x-auto'>
+      <table className='table table-zebra w-full'>
+        <thead>
+          <tr>
+            <th></th>
+            <th>Nombre</th>
+            <th>Precio</th>
+            <th>Cedear</th>
+            <th>CCL</th>
+            <th>Ratio</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {!data &&
+            favs.map((fav, idx) => (
+              <FavoritesTableRow
+                key={fav.full_name}
+                id={idx}
+                name={fav.description}
+                ticker={fav.full_name}
+                onClick={() =>
+                  setFavs(
+                    favs.filter(
+                      (favorite) => favorite.full_name !== fav.full_name
+                    )
+                  )
+                }
+              />
+            ))}
+          {data &&
+            data.stocks.map((stock, index) => (
+              <FavoritesTableRow
+                key={stock.id}
+                name={stock.cedear}
+                {...stock}
+                id={index}
+                onClick={() =>
+                  setFavs(favs.filter((fav) => fav.full_name !== stock.ticker))
+                }
+              />
+            ))}
+        </tbody>
+      </table>
+      {favs && favs.length === 0 && (
+        <p className='mt-8 text-center'>
+          Agregue un CEDEAR a su listado de favoritos.
+        </p>
       )}
     </div>
   );
