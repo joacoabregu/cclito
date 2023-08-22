@@ -12,48 +12,19 @@ export default function Favorites() {
     stocks: StocksSheets;
   }>(() => (favsQuery ? `api/stocks?name=${favsQuery}` : null), fetcher);
   return (
-    <div className='container mx-auto max-w-4xl px-4'>
+    <div className='container mx-auto max-w-4xl p-4'>
       {error && <Alert />}
       {isDesktop && (
         <FavoritesTable data={data} favs={favs} setFavs={setFavs} />
       )}
       {!isDesktop && (
-        <div className='flex flex-col items-center gap-4'>
-          {favs.map((fav) => {
-            return (
-              <div
-                key={fav.full_name}
-                className='card w-96 bg-base-100 shadow-xl text-center'
-              >
-                <div className='card-body'>
-                  <h2 className='text-3xl'>{fav.description} </h2>
-                  <p className='text-base'>{fav.full_name}</p>
-                </div>
-                <figure className='py-4'>
-                  <img
-                    onClick={() =>
-                      setFavs(
-                        favs.filter((fav) => fav.full_name !== fav?.full_name)
-                      )
-                    }
-                    className='hover:scale-125 cursor-pointer'
-                    src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTkuNSAxMGMtMi40ODMgMC00LjUgMi4wMTUtNC41IDQuNXMyLjAxNyA0LjUgNC41IDQuNSA0LjUtMi4wMTUgNC41LTQuNS0yLjAxNy00LjUtNC41LTQuNXptMi41IDVoLTV2LTFoNXYxem0tNi41MjcgNC41OTNjLTEuMTA4IDEuMDg2LTIuMjc1IDIuMjE5LTMuNDczIDMuNDA3LTYuNDMtNi4zODEtMTItMTEuMTQ3LTEyLTE1LjgwOCAwLTQuMDA1IDMuMDk4LTYuMTkyIDYuMjgxLTYuMTkyIDIuMTk3IDAgNC40MzQgMS4wNDIgNS43MTkgMy4yNDggMS4yNzktMi4xOTUgMy41MjEtMy4yMzggNS43MjYtMy4yMzggMy4xNzcgMCA2LjI3NCAyLjE3MSA2LjI3NCA2LjE4MiAwIC43NDYtLjE1NiAxLjQ5Ni0uNDIzIDIuMjUzLS41MjctLjQyNy0xLjEyNC0uNzY4LTEuNzY5LTEuMDE0LjEyMi0uNDI1LjE5Mi0uODM5LjE5Mi0xLjIzOSAwLTIuODczLTIuMjE2LTQuMTgyLTQuMjc0LTQuMTgyLTMuMjU3IDAtNC45NzYgMy40NzUtNS43MjYgNS4wMjEtLjc0Ny0xLjU0LTIuNDg0LTUuMDMtNS43Mi01LjAzMS0yLjMxNS0uMDAxLTQuMjggMS41MTYtNC4yOCA0LjE5MiAwIDMuNDQyIDQuNzQyIDcuODUgMTAgMTNsMi4xMDktMi4wNjRjLjM3Ni41NTcuODM5IDEuMDQ4IDEuMzY0IDEuNDY1eiIvPjwvc3ZnPg=='
-                  />
-                </figure>
-              </div>
-            );
-          })}
-        </div>
+        <FavoritesCards data={data} favs={favs} setFavs={setFavs} />
       )}
     </div>
   );
 }
 
-function FavoritesTable({
-  favs,
-  setFavs,
-  data,
-}: {
+interface Favorites {
   favs: StockName[];
   data:
     | {
@@ -61,7 +32,8 @@ function FavoritesTable({
       }
     | undefined;
   setFavs: (value: StockName[]) => void;
-}) {
+}
+function FavoritesTable({ favs, setFavs, data }: Favorites) {
   return (
     <div className='overflow-x-auto'>
       <table className='table table-zebra w-full'>
@@ -116,6 +88,16 @@ function FavoritesTable({
   );
 }
 
+interface Favorite {
+  name: string;
+  ticker: string;
+  id: number;
+  onClick: () => void;
+  ratio?: string;
+  USD?: string;
+  CEDEAR?: string;
+}
+
 function FavoritesTableRow({
   name,
   ticker,
@@ -124,15 +106,7 @@ function FavoritesTableRow({
   USD,
   CEDEAR,
   onClick,
-}: {
-  name: string;
-  ticker: string;
-  id: number;
-  onClick: () => void;
-  ratio?: string;
-  USD?: string;
-  CEDEAR?: string;
-}) {
+}: Favorite) {
   const _ratio = ratio?.split(':')[0];
   return (
     <tr>
@@ -157,6 +131,76 @@ function FavoritesTableRow({
         />
       </td>
     </tr>
+  );
+}
+
+function FavoritesCards({ favs, setFavs, data }: Favorites) {
+  return (
+    <div className='flex flex-col items-center gap-4'>
+      {!data &&
+        favs.map((fav, index) => (
+          <FavoritesCard
+            key={fav.full_name}
+            id={index}
+            name={fav.description}
+            ticker={fav.full_name}
+            onClick={() =>
+              setFavs(
+                favs.filter((favorite) => favorite.full_name !== fav.full_name)
+              )
+            }
+          />
+        ))}
+      {data &&
+        data.stocks.map((stock, index) => (
+          <FavoritesCard
+            key={stock.id}
+            name={stock.cedear}
+            {...stock}
+            id={index}
+            onClick={() =>
+              setFavs(
+                favs.filter((favorite) => favorite.full_name !== stock.ticker)
+              )
+            }
+          />
+        ))}
+    </div>
+  );
+}
+
+function FavoritesCard({
+  name,
+  ticker,
+  ratio,
+  USD,
+  CEDEAR,
+  onClick,
+}: Favorite) {
+  const _ratio = ratio?.split(':')[0];
+
+  return (
+    <div className='card w-full max-w-[325px] bg-base-100 shadow-xl text-center'>
+      <div className='card-body pb-0'>
+        <h2 className='text-3xl'>{name} </h2>
+        <p className='text-base'>{ticker}</p>
+        <p className='text-base'>{USD && `usd$ ${USD}`}</p>
+        <p className='text-base'>{CEDEAR && `$${CEDEAR}`}</p>
+        <p className='text-base'>
+          {_ratio &&
+            CEDEAR &&
+            USD &&
+            getCCL(Number(_ratio), parseFloat(CEDEAR), parseFloat(USD))}
+        </p>
+      </div>
+      <figure className='py-4'>
+        <img
+          onClick={onClick}
+          className='hover:scale-125 cursor-pointer'
+          src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTkuNSAxMGMtMi40ODMgMC00LjUgMi4wMTUtNC41IDQuNXMyLjAxNyA0LjUgNC41IDQuNSA0LjUtMi4wMTUgNC41LTQuNS0yLjAxNy00LjUtNC41LTQuNXptMi41IDVoLTV2LTFoNXYxem0tNi41MjcgNC41OTNjLTEuMTA4IDEuMDg2LTIuMjc1IDIuMjE5LTMuNDczIDMuNDA3LTYuNDMtNi4zODEtMTItMTEuMTQ3LTEyLTE1LjgwOCAwLTQuMDA1IDMuMDk4LTYuMTkyIDYuMjgxLTYuMTkyIDIuMTk3IDAgNC40MzQgMS4wNDIgNS43MTkgMy4yNDggMS4yNzktMi4xOTUgMy41MjEtMy4yMzggNS43MjYtMy4yMzggMy4xNzcgMCA2LjI3NCAyLjE3MSA2LjI3NCA2LjE4MiAwIC43NDYtLjE1NiAxLjQ5Ni0uNDIzIDIuMjUzLS41MjctLjQyNy0xLjEyNC0uNzY4LTEuNzY5LTEuMDE0LjEyMi0uNDI1LjE5Mi0uODM5LjE5Mi0xLjIzOSAwLTIuODczLTIuMjE2LTQuMTgyLTQuMjc0LTQuMTgyLTMuMjU3IDAtNC45NzYgMy40NzUtNS43MjYgNS4wMjEtLjc0Ny0xLjU0LTIuNDg0LTUuMDMtNS43Mi01LjAzMS0yLjMxNS0uMDAxLTQuMjggMS41MTYtNC4yOCA0LjE5MiAwIDMuNDQyIDQuNzQyIDcuODUgMTAgMTNsMi4xMDktMi4wNjRjLjM3Ni41NTcuODM5IDEuMDQ4IDEuMzY0IDEuNDY1eiIvPjwvc3ZnPg=='
+        />
+      </figure>
+    </div>
   );
 }
 
