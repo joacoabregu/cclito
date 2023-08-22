@@ -13,11 +13,15 @@ export function formatTimestampToDDMMYYY(timestamp: number) {
   return `${day}/${month}/${year}`;
 }
 
-export function getStockDetails(data: {
-  stock: StockPrice;
-  cedear: StockPrice;
-  ratio: Ratio;
-} | undefined) {
+export function getStockDetails(
+  data:
+    | {
+        stock: StockPrice;
+        cedear: StockPrice;
+        ratio: Ratio;
+      }
+    | undefined
+) {
   const ratio = Number(data?.ratio.split(':')[0]);
   const stockPrice = parseFloat(
     data?.stock.c[data.stock.c.length - 1].toFixed(2)
@@ -25,13 +29,17 @@ export function getStockDetails(data: {
   const cedearPrice = parseFloat(
     data?.cedear.c[data.cedear.c.length - 1].toFixed(2)
   );
-  const CCL = ((ratio * cedearPrice) / stockPrice).toFixed(2);
+  const CCL = getCCL(ratio, cedearPrice, stockPrice);
   const date = formatTimestampToDDMMYYY(
     data?.stock.t[data?.stock.t.length - 1]!
   );
   return { ratio, stockPrice, cedearPrice, CCL, date };
 }
 
-export const mediaQuery = {
-  sm: 'only screen and (min-width : 640px)'
+export function getCCL(ratio: number, cedearPrice: number, stockPrice: number) {
+  return ((ratio * cedearPrice) / stockPrice).toFixed(2);
 }
+
+export const mediaQuery = {
+  sm: 'only screen and (min-width : 640px)',
+};
