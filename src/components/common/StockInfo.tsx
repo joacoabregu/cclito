@@ -106,7 +106,7 @@ export function CedearInfoDetails({
   const isFav = favs?.some((fav) => fav.full_name === stockName?.full_name);
   const saveStock = (isFav: boolean) => {
     if (isFav) {
-      setFavs(favs.filter((fav) => fav.full_name === stockName?.full_name));
+      setFavs(favs.filter((fav) => fav.full_name !== stockName?.full_name));
     } else {
       setFavs([...favs, ...(stockName ? [stockName] : [])]);
     }
@@ -120,7 +120,7 @@ export function CedearInfoDetails({
         <p className='text-base'>Ratio: {details.ratio} </p>
         <p>Valor de cierre del: {details.date}</p>
       </div>
-      <div>
+      <div className='mt-4'>
         {!isFav && <HeartEmpty onClick={() => saveStock(isFav)} />}
         {isFav && <HeartFull onClick={() => saveStock(isFav)} />}
       </div>
