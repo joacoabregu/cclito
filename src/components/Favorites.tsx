@@ -1,10 +1,12 @@
+import { CedearValue } from '@components/CCLValue';
+import Spinner from '@components/Spinner';
+import { HeartRemove } from '@components/common/FavoriteHeart';
 import type { StockName, StocksSheets } from '@customTypes/index';
 import { useMediaQuery } from '@uidotdev/usehooks';
 import { fetcher, getCCL, mediaQuery } from '@utils/index';
 import useLocalStorage from '@utils/useStorage';
+import React from 'react';
 import useSWR from 'swr';
-import Spinner from '@components/Spinner';
-import { HeartRemove } from './common/FavoriteHeart';
 
 export default function Favorites() {
   const [favs, setFavs] = useLocalStorage<StockName[]>('favorites', []);
@@ -14,7 +16,7 @@ export default function Favorites() {
     stocks: StocksSheets;
   }>(() => (favsQuery ? `api/stocks?name=${favsQuery}` : null), fetcher);
   return (
-    <div className='container mx-auto max-w-4xl p-4'>
+    <div>
       {error && <Alert />}
       {isLoading && (
         <div className='h-screen grid place-items-center'>
@@ -117,17 +119,17 @@ function FavoritesTableRow({
   const _ratio = ratio?.split(':')[0];
   return (
     <tr>
-      <th>{id + 1} </th>
-      <th>
+      <td>{id + 1} </td>
+      <td>
         {name} ({ticker})
-      </th>
+      </td>
       <td>{USD && `usd$ ${USD}`}</td>
       <td>{CEDEAR && `$${CEDEAR}`}</td>
       <td>
         {_ratio &&
           CEDEAR &&
           USD &&
-          getCCL(Number(_ratio), parseFloat(CEDEAR), parseFloat(USD))}{' '}
+          `$${getCCL(Number(_ratio), parseFloat(CEDEAR), parseFloat(USD))}`}
       </td>
       <td>{_ratio}</td>
       <td>
@@ -225,6 +227,44 @@ function Alert() {
       <div className='ml-3 text-sm font-normal'>
         Se ha producido un error. La información de las acciones puede ser
         errónea.
+      </div>
+    </div>
+  );
+}
+
+export function AddModal() {
+  const labelRef = React.useRef<HTMLLabelElement | null>(null);
+
+  return (
+    <div className='self-end'>
+      <label htmlFor='my-modal' className='btn btn-active'>
+        Agregar
+      </label>
+      <input type='checkbox' id='my-modal' className='modal-toggle' />
+      <div className='modal'>
+        <div className='modal-box text-center'>
+          <div className='modal-action justify-end mb-4'>
+            <button className='btn btn-sm btn-square btn-outline'>
+              <label htmlFor='my-modal' ref={labelRef}>
+                <svg
+                  xmlns='http://www.w3.org/2000/svg'
+                  className='h-6 w-6'
+                  fill='none'
+                  viewBox='0 0 24 24'
+                  stroke='currentColor'
+                >
+                  <path
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                    strokeWidth='2'
+                    d='M6 18L18 6M6 6l12 12'
+                  />
+                </svg>
+              </label>
+            </button>
+          </div>
+          <CedearValue />
+        </div>
       </div>
     </div>
   );
