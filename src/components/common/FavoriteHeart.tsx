@@ -25,11 +25,21 @@ export function HeartEmpty({ onClick }: { onClick: () => void }) {
   );
 }
 
-function Image({ onClick, src }: { onClick: () => void; src: string }) {
+export function EditIcon({ onClick }: { onClick: () => void }) {
+  return (
+    <Image
+      onClick={onClick}
+      src='data:image/svg+xml;base64,PHN2ZyBjbGlwLXJ1bGU9ImV2ZW5vZGQiIGZpbGwtcnVsZT0iZXZlbm9kZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgc3Ryb2tlLW1pdGVybGltaXQ9IjIiIHZpZXdCb3g9IjAgMCAyNCAyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJtOS4xMzQgMTkuMzE5IDExLjU4Ny0xMS41ODhjLjE3MS0uMTcxLjI3OS0uNDIzLjI3OS0uNjg0IDAtLjIyOS0uMDgzLS40NjYtLjI4LS42NjJsLTMuMTE1LTMuMTA0Yy0uMTg1LS4xODUtLjQyOS0uMjc3LS42NzItLjI3N3MtLjQ4Ni4wOTItLjY3Mi4yNzdsLTExLjYwNiAxMS41NjZjLS41NjkgMS43NjMtMS41NTUgNC44MjMtMS42MjYgNS4wODEtLjAyLjA3NS0uMDI5LjE1LS4wMjkuMjI0IDAgLjQ2MS4zNDkuODQ4Ljc2NS44NDguNTExIDAgLjk5MS0uMTg5IDUuMzY5LTEuNjgxem0tMy4yNy0zLjM0MiAyLjEzNyAyLjEzNy0zLjE2OCAxLjA0NnptLjk1NS0xLjE2NiAxMC4xMTQtMTAuMDc5IDIuMzM1IDIuMzI3LTEwLjA5OSAxMC4xMDF6IiBmaWxsLXJ1bGU9Im5vbnplcm8iLz48L3N2Zz4='
+      css='w-8'
+    />
+  );
+}
+
+function Image({ onClick, src, css = '' }: { onClick: () => void; src: string, css?: string }) {
   return (
     <img
       onClick={onClick}
-      className='hover:scale-125 cursor-pointer'
+      className={`hover:scale-125 cursor-pointer ${css}`}
       src={src}
     />
   );
