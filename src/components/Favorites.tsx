@@ -1,15 +1,15 @@
 import { CedearValue } from '@components/CCLValue';
 import Spinner from '@components/Spinner';
-import { HeartRemove } from '@components/common/FavoriteHeart';
-import type { StockName, StocksSheets } from '@customTypes/index';
+import { EditIcon, HeartRemove } from '@components/common/FavoriteHeart';
+import type { StockClient, StocksSheets } from '@customTypes/index';
 import { useMediaQuery } from '@uidotdev/usehooks';
 import { fetcher, getCCL, mediaQuery } from '@utils/index';
 import useLocalStorage from '@utils/useStorage';
-import React from 'react';
+import { useRef, useState } from 'react';
 import useSWR from 'swr';
 
 export default function Favorites() {
-  const [favs, setFavs] = useLocalStorage<StockName[]>('favorites', []);
+  const [favs, setFavs] = useLocalStorage<StockClient[]>('favorites', []);
   const isDesktop = useMediaQuery(mediaQuery.sm);
   const favsQuery = favs?.map((fav) => fav.full_name).join(',');
   const { data, error, isLoading } = useSWR<{
@@ -19,7 +19,7 @@ export default function Favorites() {
     <div>
       {error && <Alert />}
       {isLoading && (
-        <div className='h-screen grid place-items-center'>
+        <div className='grid place-items-center'>
           <Spinner />
         </div>
       )}
@@ -34,26 +34,28 @@ export default function Favorites() {
 }
 
 interface Favorites {
-  favs: StockName[];
+  favs: StockClient[];
   data:
     | {
         stocks: StocksSheets;
       }
     | undefined;
-  setFavs: (value: StockName[]) => void;
+  setFavs: (value: StockClient[]) => void;
 }
 function FavoritesTable({ favs, setFavs, data }: Favorites) {
   return (
     <div className='overflow-x-auto'>
-      <table className='table table-zebra w-full'>
+      <table className='table table-zebra w-full  '>
         <thead>
-          <tr>
+          <tr className='[&>th]:px-1'>
             <th></th>
             <th>Nombre</th>
-            <th>Precio</th>
+            <th>Precio USD</th>
             <th>Cedear</th>
             <th>CCL</th>
             <th>Ratio</th>
+            <th>Compra</th>
+            <th>Ganancia</th>
             <th></th>
           </tr>
         </thead>
@@ -61,6 +63,7 @@ function FavoritesTable({ favs, setFavs, data }: Favorites) {
           {!data &&
             favs.map((fav, idx) => (
               <FavoritesTableRow
+                {...fav}
                 key={fav.full_name}
                 id={idx}
                 name={fav.description}
@@ -79,6 +82,10 @@ function FavoritesTable({ favs, setFavs, data }: Favorites) {
               <FavoritesTableRow
                 key={stock.id}
                 name={stock.cedear}
+                price={
+                  favs.find((fav) => fav.full_name === stock.ticker)
+                    ?.cedearPrice?.price || ''
+                }
                 {...stock}
                 id={index}
                 onClick={() =>
@@ -105,6 +112,7 @@ interface Favorite {
   ratio?: string;
   USD?: string;
   CEDEAR?: string;
+  price?: string;
 }
 
 function FavoritesTableRow({
@@ -115,15 +123,20 @@ function FavoritesTableRow({
   USD,
   CEDEAR,
   onClick,
+  price,
 }: Favorite) {
   const _ratio = ratio?.split(':')[0];
+  const labelRef = useRef<HTMLLabelElement | null>(null);
+
+  const [favs, setFavs] = useLocalStorage<StockClient[]>('favorites', []);
+  const [cedearPrice, setPrice] = useState({ price: '', CCL: '' });
   return (
-    <tr>
+    <tr className='[&>td]:px-1 [&>td:first-of-type]:pl-4 [&>td:last-of-type]:pr-4'>
       <td>{id + 1} </td>
       <td>
         {name} ({ticker})
       </td>
-      <td>{USD && `usd$ ${USD}`}</td>
+      <td>{USD && `$${USD}`}</td>
       <td>{CEDEAR && `$${CEDEAR}`}</td>
       <td>
         {_ratio &&
@@ -132,8 +145,97 @@ function FavoritesTableRow({
           `$${getCCL(Number(_ratio), parseFloat(CEDEAR), parseFloat(USD))}`}
       </td>
       <td>{_ratio}</td>
+      <td>{price} </td>
+      <td></td>
       <td>
-        <HeartRemove onClick={onClick} />
+        <div className='flex justify-between items-center'>
+          <label htmlFor='edit-stock-modal' className='btn btn-active'>
+            <EditIcon onClick={() => {}} />
+          </label>
+          <input
+            type='checkbox'
+            id='edit-stock-modal'
+            className='modal-toggle'
+          />
+          <div className='modal'>
+            <div className='modal-box text-center'>
+              <div className='modal-action justify-end mb-4'>
+                <button className='btn btn-sm btn-square btn-outline'>
+                  <label htmlFor='edit-stock-modal' ref={labelRef}>
+                    <svg
+                      xmlns='http://www.w3.org/2000/svg'
+                      className='h-6 w-6'
+                      fill='none'
+                      viewBox='0 0 24 24'
+                      stroke='currentColor'
+                    >
+                      <path
+                        strokeLinecap='round'
+                        strokeLinejoin='round'
+                        strokeWidth='2'
+                        d='M6 18L18 6M6 6l12 12'
+                      />
+                    </svg>
+                  </label>
+                </button>
+              </div>
+              <div className='form-control gap-1 w-full max-w-sm'>
+                <label className='label'>
+                  <span className='label-text'>
+                    Valor de compra del cedear en pesos argentinos
+                  </span>
+                </label>
+                <input
+                  type='text'
+                  value={cedearPrice.price}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    //check that value is a valid number
+                    if (isNaN(parseFloat(value))) return;
+                    setPrice({ ...cedearPrice, price: value });
+                  }}
+                  className='input input-bordered w-full max-w-xs'
+                />
+              </div>
+              <div className='form-control gap-1 w-full max-w-sm'>
+                <label className='label'>
+                  <span className='label-text'>
+                    Valor del CCL al momento de la compra
+                  </span>
+                </label>
+                <input
+                  type='text'
+                  value={cedearPrice.CCL}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    //check that value is a valid number
+                    if (isNaN(parseFloat(value))) return;
+                    setPrice({ ...cedearPrice, CCL: value });
+                  }}
+                  className='input input-bordered w-full max-w-xs'
+                />
+              </div>
+              <button
+                className='btn btn-active'
+                disabled={!cedearPrice}
+                onClick={() => {
+                  const updatedFavs = favs.map((fav) => {
+                    if (fav.full_name === ticker) {
+                      return { ...fav, price: cedearPrice };
+                    }
+                    return fav;
+                  });
+                  setFavs(updatedFavs);
+                  labelRef.current?.click();
+                }}
+              >
+                Agregar precio de compra
+              </button>
+            </div>
+          </div>
+
+          <HeartRemove onClick={onClick} />
+        </div>
       </td>
     </tr>
   );
@@ -233,8 +335,6 @@ function Alert() {
 }
 
 export function AddModal() {
-  const labelRef = React.useRef<HTMLLabelElement | null>(null);
-
   return (
     <div className='self-end'>
       <label htmlFor='my-modal' className='btn btn-active'>
@@ -245,7 +345,7 @@ export function AddModal() {
         <div className='modal-box text-center'>
           <div className='modal-action justify-end mb-4'>
             <button className='btn btn-sm btn-square btn-outline'>
-              <label htmlFor='my-modal' ref={labelRef}>
+              <label htmlFor='my-modal'>
                 <svg
                   xmlns='http://www.w3.org/2000/svg'
                   className='h-6 w-6'
