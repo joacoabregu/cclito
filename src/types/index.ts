@@ -12,6 +12,12 @@ export const StocksSchema = StockSchema.array();
 export type Stock = z.infer<typeof StockSchema>;
 export type Stocks = z.infer<typeof StocksSchema>;
 export type StockName = Pick<Stock, 'full_name' | 'description'>;
+export type StockClient = StockName & {
+  cedearPrice?: {
+    price: string,
+    CCL: string
+  }
+}
 
 export const StockPriceSchema = z.object({
   t: z.number().array().nonempty(),
