@@ -12,6 +12,7 @@ import type {
 } from '@customTypes/index';
 import { useDebounce, useMediaQuery } from '@uidotdev/usehooks';
 import { fetcher, getStockDetails, mediaQuery } from '@utils/index';
+import { PATHS_API } from '@utils/routes';
 import { useState } from 'react';
 import useSWR from 'swr';
 
@@ -23,7 +24,7 @@ export default function SLTP() {
     cedear: StockPrice;
     ratio: Ratio;
   }>(
-    () => (stockName ? `api/stock/price?name=${stockName.full_name}` : null),
+    () => (stockName ? `${PATHS_API.stock.price}?name=${stockName.full_name}` : null),
     fetcher
   );
   const details = getStockDetails(data);

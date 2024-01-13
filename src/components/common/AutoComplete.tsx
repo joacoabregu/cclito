@@ -2,6 +2,7 @@ import Spinner from '@components/Spinner';
 import type { StockName, Stocks } from '@customTypes/index';
 import { useDebounce } from '@uidotdev/usehooks';
 import { fetcher } from '@utils/index';
+import { PATHS_API } from '@utils/routes';
 import classNames from 'classnames';
 import { memo, useRef, useState } from 'react';
 import useSWR from 'swr';
@@ -21,7 +22,7 @@ const Autocomplete = memo(function Autocomplete(props: AutcompleteProps) {
   //https://gist.github.com/csandman/cb1b9cae2334415b0b20e04b228c1016
   const { data, error, isLoading } = useSWR<{ stocks: Stocks }>(
     () =>
-      debouncedSearchTerm ? `api/stock?name=${debouncedSearchTerm}` : null,
+      debouncedSearchTerm ? `${PATHS_API.stock.url}?name=${debouncedSearchTerm}` : null,
     fetcher
   );
 
