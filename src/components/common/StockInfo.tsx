@@ -45,7 +45,7 @@ export function StockInfo({
 
 export function StockName({ stockName }: { stockName: StockName }) {
 	return (
-		<div className='w-full max-w-md py-5 sm:py-10'>
+		<div className='w-full max-w-md py-3 sm:py-3'>
 			<p className='text-3xl'>{stockName.full_name}</p>
 			<p className='text-base'>{stockName.description}</p>
 		</div>
@@ -74,7 +74,7 @@ export function CCLInfoDetails({
 	};
 	return (
 		<>
-			<div>
+			<div className='mb-2'>
 				<p className='text-2xl'>CCL: ${details.CCL} </p>
 				<p className='text-1xl'>Ratio: {details.ratio} </p>
 				<p className='text-base'>Precio: usd$ {details.stockPrice}</p>
