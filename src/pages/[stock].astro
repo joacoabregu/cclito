@@ -3,9 +3,10 @@ import Stock from '@components/Stock';
 import type { Ratio, StockPrice } from '@customTypes/index';
 import Layout from '@layouts/Layout.astro';
 import { getStockDetails } from '@utils/index';
+import { PATHS_API } from '@utils/routes';
 const { stock } = Astro.params;
 const priceResponse = await fetch(
-  `${import.meta.env.URL}/api/stock/price?name=${stock}`
+  `${import.meta.env.URL}/${PATHS_API.stock.price}?name=${stock}`
 );
 if (priceResponse.status === 400 || !stock) return Astro.redirect('/404');
 const data: {
