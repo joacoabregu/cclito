@@ -1,30 +1,13 @@
 import {
-  StockRatio,
-  StocksRatio,
-  StocksSheetsSchema,
+  StocksSheetsSchema
 } from '@customTypes/index';
+import { getStocks } from '@utils/getStocks';
 import type { APIRoute } from 'astro';
-import Papa from 'papaparse';
 import pino from 'pino';
 import { z } from 'zod';
 const logger = pino();
 
-export async function getRatios() {
-  const ratioSheet =
-    'https://docs.google.com/spreadsheets/d/e/2PACX-1vS-RtvaCpilenyOw3UY8YuA0cQMj1nS5B8AvHwiy7gKGfLDCe2UtAfB3B52mkWOytr_RA4DWEdGYAED/pub?gid=779469096&single=true&output=csv';
-  const ratioData = await fetch(ratioSheet);
-  const ratioText = await ratioData.text();
 
-  const ratiosParsed = await new Promise<StocksRatio>((resolve, reject) => {
-    Papa.parse<StockRatio>(ratioText, {
-      header: true,
-      complete: (result) => resolve(result.data),
-      error: reject,
-    });
-  });
-
-  return ratiosParsed;
-}
 
 export const get: APIRoute = async ({ request }) => {
   const url = new URL(request.url);
@@ -44,7 +27,7 @@ export const get: APIRoute = async ({ request }) => {
     const stocksArray = stocks.split(',');
     logger.info(stocksArray);
 
-    const responseRatios = await getRatios();
+    const responseRatios = await getStocks();
     const ratiosArray = responseRatios.filter((ratio) =>
       stocksArray.includes(ratio.ticker)
     );
